@@ -50,11 +50,11 @@ static void normal_invert(igamma_rng* rng, double normal, uint64_t out[2]) {
 	double x_range = exp(-c / 2.0);
 	//printf("x_range = %g\n", x_range);
 	double x, x2, emw;
-	uint64_t r0 = rng();
-	bool y_neg = r0 >> 63;
-	uint64_t gx;
-	uint64_t r1 = rng();
-	x = (normal > 0 ? 1.0 : -1.0) * x_range * distr_uniform(r1);
+	bool y_neg = rng() >> 63;
+	x = x_range * distr_uniform(rng());
+	if (normal < 0) {
+		x = -x;
+	}
 	//printf("invert: random x = %g\n", x);
 	x2 = x * x;
 	double z = c / x2;

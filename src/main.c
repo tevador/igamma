@@ -7,25 +7,19 @@
 #include <time.h>
 #include "igamma.h"
 #include "format_utils.h"
-
-static uint64_t lgc_seed;
-
-static uint64_t lcg_random() {
-	uint64_t x = 6364136223846793005ull * lgc_seed + 1442695040888963407ull;
-	lgc_seed = x;
-	return x;
-}
+#include "csprng.h"
 
 void gen_output_ages(igamma_state* state, int ring_members, int real_output) {
 	printf("Generated ring member ages:\n");
 	for (int i = 0; i < ring_members; ++i) {
 		printf("  %.16g %s\n", exp(igamma_next(state)),
 			i == real_output ? "<------" : "");
+		//output_hex((const char*)state->seed, IGAMMA_SEED_BYTES);
+		//printf("\n");
 	}
 }
 
 int main(int argc, const char** argv) {
-	lgc_seed = time(NULL);
 
 	igamma_state state = {
 		.alpha = 19.28,
@@ -34,13 +28,14 @@ int main(int argc, const char** argv) {
 			77, 116,  10,  35,  78, 180,  10, 240,  36,  23, 113,   9,   2, 170,  46,  33,
 			207, 211,  65, 224,  11,  16, 214, 253, 185, 127, 137,  38, 188,  69, 128,  56
 		},
-		.rng = &lcg_random
+		.rng = &csprng_gen
 	};
 
 	int ring_members;
 	int real_output;
 	double value;
 	const char* seed_hex;
+	const char* csprng_hex;
 	bool gen, invert;
 
 	read_option("--gen", argc, argv, &gen);
@@ -60,6 +55,20 @@ int main(int argc, const char** argv) {
 	}
 
 	if (invert) {
+		read_string_option("--csprng", argc, argv, &csprng_hex);
+		if (csprng_hex != NULL && strlen(csprng_hex) == 64) {
+			printf("Using CSPRNG seed: %s\n", csprng_hex);
+			uint8_t csprng_seed[32];
+			hex2bin(csprng_hex, 64, (char*)csprng_seed);
+			csprng_init_seed(csprng_seed);
+		}
+		else {
+			printf("Using a time-based CSPRNG seed\n");
+			uint32_t csprng_seed[8] = { 0 };
+			time_t now = time(NULL);
+			csprng_seed[0] = now;
+			csprng_init_seed(csprng_seed);
+		}
 		read_int_option("--ring-members", argc, argv, &ring_members, 11);
 		read_int_option("--real-output", argc, argv, &real_output, 0);
 		read_float_option("--value", argc, argv, &value, 0.0);

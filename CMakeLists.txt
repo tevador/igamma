@@ -21,6 +21,7 @@ endfunction()
 add_flag("-maes")
 
 add_executable(igamma
+src/csprng.c
 src/lambert_w.c
 src/igamma.c
 src/main.c)
