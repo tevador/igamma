@@ -16,7 +16,7 @@ static void chacha20_init(chacha20_state* state, uint8_t seed[CSPRNG_SEED_SIZE])
 	state->w[1] = 0x3320646e;
 	state->w[2] = 0x79622d32;
 	state->w[3] = 0x6b206574;
-	memcpy(&state->w[4], seed, sizeof(seed));
+	memcpy(&state->w[4], seed, CSPRNG_SEED_SIZE);
 	state->w[12] = 1;
 	state->w[13] = 0x09000000;
 	state->w[14] = 0x4a000000;
