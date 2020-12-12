@@ -25,4 +25,6 @@ src/lambert_w.c
 src/igamma.c
 src/main.c)
 
-target_link_libraries(igamma m)
+if(NOT WIN32)
+  target_link_libraries(igamma m)
+endif()

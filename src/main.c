@@ -19,7 +19,7 @@ static uint64_t lcg_random() {
 void gen_output_ages(igamma_state* state, int ring_members, int real_output) {
 	printf("Generated ring member ages:\n");
 	for (int i = 0; i < ring_members; ++i) {
-		printf("  %g %s\n", exp(igamma_next(state)),
+		printf("  %.16g %s\n", exp(igamma_next(state)),
 			i == real_output ? "<------" : "");
 	}
 }
